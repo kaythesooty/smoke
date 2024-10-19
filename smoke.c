@@ -1,13 +1,26 @@
 #include <stdio.h>
+#include <string.h>
 
 void init();
 
-int main(int argc, char* argv) {
+int main(int argc, char **argv) {
+    // init();
 
-    init();
+    FILE *cfg;
+    cfg = fopen("smoke.cfg", "r");
 
+    if (argc > 1) {
+        char game[24];
+        fscanf(cfg, "%24s", &game);
+        if (strcmp(game, argv[1]) == 0) {
+            printf("Found %s vs %s\n", argv[1], game);
+        } else {
+            printf("Couldn't find %s vs %s\n", argv[1], game);
+            // return 1;
+        }
+    }
 
-    printf("Running game\n");
+    // printf("%c\n", argv[1][0]);
 
     return 0;
 }
