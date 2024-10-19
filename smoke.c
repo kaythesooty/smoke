@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 
+bool filter(char *str1, char *str2);
+
 void init();
-void list(FILE *cfg);
-void find(FILE *cfg, char game[]);
+void list(FILE *cfg, char game[]);
+// void play();
 
 int main(int argc, char *argv[])
 {
@@ -15,13 +18,20 @@ int main(int argc, char *argv[])
         init(cfg);
     }
 
-    if (argc > 1) {
-        find(cfg, argv[1]);
-    } else {
-        list(cfg);
-    }
+
+    list(cfg, argv[1]);
+
 
     return 0;
+}
+
+bool filter(char *str1, char *str2)
+{
+    if (!str2) return true;
+
+    if (strspn(str1, str2) >= strlen(str2)) return true;
+
+    return false;
 }
 
 void init(FILE *cfg)
@@ -32,7 +42,7 @@ void init(FILE *cfg)
     printf("No cfg file found, new one created.\n");
 }
 
-void list(FILE *cfg)
+void list(FILE *cfg, char game[])
 {
     char buffer[128];
 
@@ -40,28 +50,7 @@ void list(FILE *cfg)
 
     while (fgets(buffer, 128, cfg)) {
 
-        if (buffer[0] != '#' && buffer[0] != '\n') {
-            printf("%s", buffer);
-            fgets(buffer, 128, cfg);
-            printf("Name: %s", buffer);
-            fgets(buffer, 128, cfg);
-            printf("Path: %s\n", buffer);
-
-        }
-
-    }
-
-}
-
-void find(FILE *cfg, char game[])
-{
-    char buffer[128];
-
-    printf("----------\n");
-
-    while (fgets(buffer, 128, cfg)) {
-
-        if (strspn(buffer, game) >= strlen(game) && buffer[0] != '#') {
+        if (filter(buffer, game) && buffer[0] != '#' && buffer[0] != '\n') {
             printf("%s", buffer);
             fgets(buffer, 128, cfg);
             printf("Name: %s", buffer);
