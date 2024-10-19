@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
     list(cfg, argv[1]);
 
-
+    fclose(cfg);
     return 0;
 }
 
@@ -45,6 +45,7 @@ void init(FILE *cfg)
 void list(FILE *cfg, char game[])
 {
     char buffer[128];
+    bool found = true;
 
     printf("----------\n");
 
@@ -56,9 +57,12 @@ void list(FILE *cfg, char game[])
             printf("Name: %s", buffer);
             fgets(buffer, 128, cfg);
             printf("Path: %s\n", buffer);
+            found = true;
 
         }
 
     }
+
+    if (!found) printf("No games match");
 
 }
