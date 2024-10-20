@@ -6,7 +6,7 @@ bool filter(char *str1, char *str2);
 
 void init();
 void list(FILE *cfg, char game[]);
-// void play();
+void play(FILE *cfg, char game[]);
 
 int main(int argc, char *argv[])
 {
@@ -18,8 +18,9 @@ int main(int argc, char *argv[])
         init(cfg);
     }
 
+    if (argc > 0) play(cfg, argv[1]);
 
-    list(cfg, argv[1]);
+    // list(cfg, argv[1]);
 
     fclose(cfg);
     return 0;
@@ -65,4 +66,25 @@ void list(FILE *cfg, char game[])
 
     if (!found) printf("No games match");
 
+}
+
+void play(FILE *cfg, char game[])
+{
+    char buffer[128];
+
+    while(fgets(buffer, 128, cfg))
+    {
+        buffer[strcspn(buffer, "\n")] = 0;
+        if (strcmp(buffer, game) == 0 && buffer[0] != '#' && buffer[0] != '\n')
+        {
+            fgets(buffer, 128, cfg);
+            printf("Running %s", buffer);
+            fgets(buffer, 128, cfg);
+            printf("from %s", buffer);
+
+            return;
+        }
+    }
+
+    printf("%s not found\n", game);
 }
