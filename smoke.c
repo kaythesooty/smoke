@@ -6,6 +6,7 @@ bool filter(char *str1, char *str2);
 
 void init();
 void list(FILE *cfg, char game[]);
+void help();
 void play(FILE *cfg, char game[]);
 
 int main(int argc, char *argv[])
@@ -19,9 +20,30 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (argc == 2 && argv[1][0] != '-') play(cfg, argv[1]);
-    if (argc >= 2 && argv[1][0] == '-') list(cfg, argv[2]);
-    if (argc == 1) printf("Smoke!\n");
+    if (argc >= 2 && argv[1][0] != '-') play(cfg, argv[1]);
+    if (argc >= 2 && argv[1][0] == '-')
+    {
+        switch (argv[1][1])
+        {
+            case 'h':
+                help();
+                return 0;
+            case 'l':
+                list(cfg, argv[2]);
+                return 0;
+            case 'a':
+                printf("todo: add game\n");
+                return 0;
+            case 'r':
+                printf("todo: remove game\n");
+                return 0;
+            default:
+                printf("Error: Invalid parameter\n");
+                help();
+                return 0;
+        }
+    }
+    if (argc == 1) help();
 
     fclose(cfg);
     return 0;
@@ -67,6 +89,13 @@ void list(FILE *cfg, char game[])
 
     if (!found) printf("No games match\n");
 
+}
+
+void help() {
+  printf("smoke <gamename>\n  Runs the game specified. Must be exact match\n\n");
+  printf(" -l [filter]\n  List games. [filter] takes a string and will only return results matchinig or beginning with it\n\n");
+  printf(" -a [cmdname] [\"gamename\"] [path]\n  Adds a new game. If options are ommited, a prompt will allow input.\n\n");
+  printf(" -r <cmdname>\n  Remove a game. Must be exact match\n\n");
 }
 
 void play(FILE *cfg, char game[])
