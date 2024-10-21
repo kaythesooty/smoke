@@ -16,11 +16,12 @@ int main(int argc, char *argv[])
     // if there were no cfg it would be necessary to create it
     if(cfg == NULL) {
         init(cfg);
+        return 1;
     }
 
-    if (argc > 0) play(cfg, argv[1]);
-
-    // list(cfg, argv[1]);
+    if (argc == 2 && argv[1][0] != '-') play(cfg, argv[1]);
+    if (argc >= 2 && argv[1][0] == '-') list(cfg, argv[2]);
+    if (argc == 1) printf("Smoke!\n");
 
     fclose(cfg);
     return 0;
@@ -46,7 +47,7 @@ void init(FILE *cfg)
 void list(FILE *cfg, char game[])
 {
     char buffer[128];
-    bool found = true;
+    bool found = false;
 
     printf("----------\n");
 
@@ -64,7 +65,7 @@ void list(FILE *cfg, char game[])
 
     }
 
-    if (!found) printf("No games match");
+    if (!found) printf("No games match\n");
 
 }
 
