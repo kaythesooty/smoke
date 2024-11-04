@@ -1,22 +1,30 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 bool filter(char *str1, char *str2);
 
-void init();
+void init(FILE *cfg, char path[]);
 void list(FILE *cfg, char game[]);
 void help();
 void play(FILE *cfg, char game[]);
 
 int main(int argc, char *argv[])
 {
+    char *home = getenv("HOME");
+    char *pathend = "/.config/smoke.cfg";
+
+    char path[100];
+    strcpy(path, home);
+    strcat(path, pathend);
+
     FILE *cfg;
-    cfg = fopen("smoke.cfg", "r");
+    cfg = fopen(path, "r");
 
     // if there were no cfg it would be necessary to create it
     if(cfg == NULL) {
-        init(cfg);
+        init(cfg, path);
         return 1;
     }
 
@@ -58,9 +66,9 @@ bool filter(char *str1, char *str2)
     return false;
 }
 
-void init(FILE *cfg)
+void init(FILE *cfg, char path[])
 {
-    cfg = fopen("smoke.cfg", "w");
+    cfg = fopen(path, "w");
     fclose(cfg);
 
     printf("No cfg file found, new one created.\n");
