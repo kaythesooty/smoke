@@ -5,9 +5,10 @@
 
 bool filter(char *str1, char *str2);
 
+void addg(FILE *cfg, int argc, char *argv[]);
+void help();
 void init(FILE *cfg, char path[]);
 void list(FILE *cfg, char game[]);
-void help();
 void play(FILE *cfg, char game[]);
 
 int main(int argc, char *argv[])
@@ -40,13 +41,13 @@ int main(int argc, char *argv[])
                 list(cfg, argv[2]);
                 return 0;
             case 'a':
-                printf("todo: add game\n");
+                addg(cfg, argc, argv);
                 return 0;
             case 'r':
                 printf("todo: remove game\n");
                 return 0;
             default:
-                printf("Error: Invalid parameter\n");
+                printf("\x1b[31mError: Invalid parameter\x1b[0m\n");
                 help();
                 return 0;
         }
@@ -64,6 +65,19 @@ bool filter(char *str1, char *str2)
     if (strspn(str1, str2) >= strlen(str2)) return true;
 
     return false;
+}
+
+void addg(FILE *cfg, int argc, char *argv[])
+{
+  char cmd[16];
+  char name[100];
+  char path[100];
+
+  if (argc >= 3) {strcpy(cmd, argv[2]);} else {scanf("%s", &cmd);}
+  if (argc >= 4) {strcpy(name, argv[3]);} else {scanf("%s", &name);}
+  if (argc >= 5) {strcpy(path, argv[4]);} else {scanf("%s", &path);}
+
+  printf("Okay, added ");
 }
 
 void init(FILE *cfg, char path[])
