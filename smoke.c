@@ -5,7 +5,7 @@
 
 bool filter(char *str1, char *str2);
 
-void addg(FILE *cfg, int argc, char *argv[]);
+void addg(FILE *cfg, int argc, char *argv[], char cfgpath[]);
 void help();
 void init(FILE *cfg, char path[]);
 void list(FILE *cfg, char game[]);
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
                 list(cfg, argv[2]);
                 return 0;
             case 'a':
-                addg(cfg, argc, argv);
+                addg(cfg, argc, argv, path);
                 return 0;
             case 'r':
                 printf("todo: remove game\n");
@@ -67,17 +67,48 @@ bool filter(char *str1, char *str2)
     return false;
 }
 
-void addg(FILE *cfg, int argc, char *argv[])
+void addg(FILE *cfg, int argc, char *argv[], char cfgpath[])
 {
   char cmd[16];
   char name[100];
   char path[100];
 
-  if (argc >= 3) {strcpy(cmd, argv[2]);} else {scanf("%s", &cmd);}
-  if (argc >= 4) {strcpy(name, argv[3]);} else {scanf("%s", &name);}
-  if (argc >= 5) {strcpy(path, argv[4]);} else {scanf("%s", &path);}
+  cfg = fopen(cfgpath, "a");
 
-  printf("Okay, added ");
+  fputc('\n', cfg);
+
+  if (argc >= 3) {
+    strcpy(cmd, argv[2]);
+    fprintf(cfg, cmd);
+    fputc('\n', cfg);
+    } else {
+    printf("Short name: ");
+    fgets(cmd, 16, stdin);
+    fprintf(cfg, cmd);
+  }
+
+  if (argc >= 4) {
+    strcpy(name, argv[3]);
+    fprintf(cfg, name);
+    fputc('\n', cfg);
+    } else {
+    printf("Full name: ");
+    fgets(name, 100, stdin);
+    fprintf(cfg, name);
+  }
+
+  if (argc >= 5) {
+    strcpy(path, argv[4]);
+    fprintf(cfg, path);
+    fputc('\n', cfg);
+    } else {
+    printf("Path to game: ");
+    fgets(path, 100, stdin);
+    fprintf(cfg, path);
+  }
+
+
+  printf("Okay, added %s\n", name);
 }
 
 void init(FILE *cfg, char path[])
