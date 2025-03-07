@@ -2,34 +2,32 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "stringhlp.c"
 
-bool filter(char *str1, char *str2);
-
-void addg(FILE *cfg, int argc, char *argv[], char cfgpath[]);
+void remove_game(char* cfgpath, char* input);
+void add_game(int argc, char *argv[], char cfgpath[]);
 void help();
-void init(FILE *cfg, char path[]);
-void list(FILE *cfg, char game[]);
-void play(FILE *cfg, char game[]);
+void init(char path[]);
+void list(char game[]);
+void play(char game[]);
+
+FILE *cfg;
 
 int main(int argc, char *argv[])
 {
-  char *home = getenv("HOME");
+  char path[128];
   char *pathend = "/.config/smoke.cfg";
+  snprintf(path, 128, "%s%s", getenv("HOME"), pathend);
 
-  char path[100];
-  strcpy(path, home);
-  strcat(path, pathend);
-
-  FILE *cfg;
   cfg = fopen(path, "r");
 
   // if there were no cfg it would be necessary to create it
   if(cfg == NULL) {
-    init(cfg, path);
+    init(path);
     return 1;
   }
 
-  if (argc >= 2 && argv[1][0] != '-') play(cfg, argv[1]);
+  if (argc >= 2 && argv[1][0] != '-') play(argv[1]);
   if (argc >= 2 && argv[1][0] == '-')
   {
     switch (argv[1][1])
@@ -38,13 +36,13 @@ int main(int argc, char *argv[])
         help();
         return 0;
       case 'l':
-        list(cfg, argv[2]);
+        list(argv[2]);
         return 0;
       case 'a':
-        addg(cfg, argc, argv, path);
+        add_game(argc, argv, path);
         return 0;
       case 'r':
-        printf("todo: remove game\n");
+        remove_game(path, argv[2]);
         return 0;
       default:
         printf("\x1b[31mError: Invalid parameter\x1b[0m\n");
@@ -58,16 +56,34 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-bool filter(char *str1, char *str2)
+void remove_game(char* cfgpath, char* input)
 {
-  if (!str2) return true;
+  char** cache = cache_file(cfg);
+  int linec = line_count(cfg);
 
-  if (strspn(str1, str2) >= strlen(str2)) return true;
+  cfg = fopen(cfgpath, "w");
+  bool found = false;
+  for (int i = 0; i < linec; i++) {
+    size_t length = strlen(cache[i]);
+    cache[i][length - 1] = '\0';
 
-  return false;
+    printf("Comparing %s to %s... ", input, cache[i]);
+    if (strcmp(cache[i], input) == 0) {
+      printf("match found!\n");
+      i += 3;
+      found = true;
+      continue;
+    }
+
+    printf("no match.\n");
+    fprintf(cfg, "%s\n", cache[i]);
+  }
+
+  if (found) printf("\"%s\" removed\n", input);
+  else printf("\"%s\" not found\n", input);
 }
 
-void addg(FILE *cfg, int argc, char *argv[], char cfgpath[])
+void add_game(int argc, char *argv[], char cfgpath[])
 {
   char cmd[16];
   char name[100];
@@ -79,39 +95,39 @@ void addg(FILE *cfg, int argc, char *argv[], char cfgpath[])
 
   if (argc >= 3) {
     strcpy(cmd, argv[2]);
-    fprintf(cfg, cmd);
+    fprintf(cfg, "%s", cmd);
     fputc('\n', cfg);
     } else {
     printf("Short name: ");
     fgets(cmd, 16, stdin);
-    fprintf(cfg, cmd);
+    fprintf(cfg, "%s", cmd);
   }
 
   if (argc >= 4) {
     strcpy(name, argv[3]);
-    fprintf(cfg, name);
+    fprintf(cfg, "%s", name);
     fputc('\n', cfg);
     } else {
     printf("Full name: ");
     fgets(name, 100, stdin);
-    fprintf(cfg, name);
+    fprintf(cfg, "%s", name);
   }
 
   if (argc >= 5) {
     strcpy(path, argv[4]);
-    fprintf(cfg, path);
+    fprintf(cfg, "%s", path);
     fputc('\n', cfg);
     } else {
     printf("Path to game: ");
     fgets(path, 100, stdin);
-    fprintf(cfg, path);
+    fprintf(cfg, "%s", path);
   }
 
 
   printf("Okay, added %s\n", name);
 }
 
-void init(FILE *cfg, char path[])
+void init(char path[])
 {
   cfg = fopen(path, "w");
   fclose(cfg);
@@ -119,7 +135,7 @@ void init(FILE *cfg, char path[])
   printf("No cfg file found, new one created.\n");
 }
 
-void list(FILE *cfg, char game[])
+void list(char game[])
 {
   char buffer[128];
   bool found = false;
@@ -151,7 +167,7 @@ void help() {
   printf(" -r <cmdname>\n  Remove a game. Must be exact match\n\n");
 }
 
-void play(FILE *cfg, char game[])
+void play(char game[])
 {
   char buffer[128];
 
